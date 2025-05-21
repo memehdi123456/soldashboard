@@ -12,13 +12,12 @@ from sklearn.pipeline import make_pipeline
 
 import numpy as np
 
-
-# Auto-refresh toutes les 10 secondes
-st_autorefresh(interval=10000, key="refresh_live")
-
 st.set_page_config(page_title="Solana Market Signals", layout="wide")
 st.title("📊 Solana Market Signals")
 st.image("solana_banner.png", use_container_width=True)
+
+# Auto-refresh toutes les 10 secondes
+st_autorefresh(interval=10000, key="refresh_live")
 
 @st.cache_data
 def get_fear_greed_index():
