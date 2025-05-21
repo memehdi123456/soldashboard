@@ -160,6 +160,28 @@ if today not in history_df["Date"].values:
     history_df = pd.concat([history_df, pd.DataFrame([new_row])], ignore_index=True)
     history_df.to_csv(history_file, index=False)
 
+import matplotlib.pyplot as plt
+
+st.subheader("📈 Évolution du prix avec signaux Achat/Vente")
+
+df_plot = history_df.copy()
+df_plot["Date"] = pd.to_datetime(df_plot["Date"])
+df_plot = df_plot[df_plot["Date"] > (datetime.now() - pd.Timedelta(days=30))]
+
+fig, ax = plt.subplots(figsize=(10, 4))
+ax.plot(df_plot["Date"], df_plot["Price"], label="Prix SOL", color='blue')
+
+# Points d'achat / vente
+buy_signals = df_plot[df_plot["Action"].str.contains("Achat", na=False)]
+sell_signals = df_plot[df_plot["Action"].str.contains("Vente", na=False)]
+
+ax.scatter(buy_signals["Date"], buy_signals["Price"], color="green", label="Achat", marker="^", s=100)
+ax.scatter(sell_signals["Date"], sell_signals["Price"], color="red", label="Vente", marker="v", s=100)
+
+ax.legend()
+ax.set_xlabel("Date")
+ax.set_ylabel("Prix en $")
+st.pyplot(fig)
 
 
 # === Dashboard ===
@@ -301,6 +323,16 @@ history_df["Date"] = pd.to_datetime(history_df["Date"])
 last_30_days = history_df[history_df["Date"] > (datetime.now() - pd.Timedelta(days=30))]
 st.dataframe(last_30_days.sort_values("Date", ascending=False), use_container_width=True)
 st.download_button("📥 Télécharger l'historique CSV", data=history_df.to_csv(index=False), file_name="signal_history.csv")
+
+st.subheader("📊 Recommandations enregistrées (filtrables)")
+import streamlit.components.v1 as components
+
+if "Action" in history_df.columns:
+    df_table = history_df[["Date", "Price", "Action"]].sort_values("Date", ascending=False)
+    st.dataframe(df_table, use_container_width=True)
+else:
+    st.info("Aucune donnée de recommandation disponible.")
+
 
 afficher_graphique_actions(history_df)
 
