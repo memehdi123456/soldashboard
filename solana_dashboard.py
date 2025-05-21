@@ -79,10 +79,6 @@ col1.metric("💰 Prix SOL (live)", f"${live_price}")
 col2.metric("🔁 Rafraîchissement", "Toutes les 10s")
 col3.metric("📈 Source", "Yahoo Finance")
 
-st.set_page_config(page_title="Solana Market Signals", layout="wide")
-st.title("📊 Solana Market Signals")
-st.image("solana_banner.png", use_container_width=True)
-
 # === Chargement des données ===
 @st.cache_data
 def get_fear_greed_index():
