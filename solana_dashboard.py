@@ -9,7 +9,8 @@ import numpy as np
 
 st.set_page_config(page_title="Solana Market Signals", layout="wide")
 st.title("📊 Solana Market Signals")
-st.image("https://i.imgur.com/n1O1nNy.png", use_column_width=True)
+st.image("solana_banner.png", use_container_width=True)
+
 
 # === Fonctions données ===
 @st.cache_data
