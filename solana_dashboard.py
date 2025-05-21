@@ -65,18 +65,37 @@ def detect_signals(data, fg_index):
     return signals, round(change, 2), round(rsi, 2), round(price, 2)
 
 def forecast_price(data, future_days=7):
+    from sklearn.preprocessing import PolynomialFeatures
+    from sklearn.pipeline import make_pipeline
+
     data = data.dropna().reset_index()
     data['Timestamp'] = pd.to_datetime(data['Date']).astype(np.int64) // 10**9
+
     X = data['Timestamp'].values.reshape(-1, 1)
     y = data['Close'].values
-    model = LinearRegression().fit(X, y)
+
+    model = make_pipeline(PolynomialFeatures(degree=3), LinearRegression())
+    model.fit(X, y)
 
     future_dates = pd.date_range(start=data['Date'].iloc[-1] + pd.Timedelta(days=1), periods=future_days)
     future_ts = future_dates.astype(np.int64) // 10**9
     future_ts = np.array(future_ts).reshape(-1, 1)
 
     future_preds = model.predict(future_ts)
-    return future_dates, future_preds
+
+    # Zone d'incertitude simple = écart-type passé
+    std_error = np.std(y - model.predict(X))
+    lower_bound = future_preds - std_error
+    upper_bound = future_preds + std_error
+
+    forecast_df = pd.DataFrame({
+        "Prix prédit": future_preds,
+        "Min": lower_bound,
+        "Max": upper_bound
+    }, index=future_dates)
+
+    return forecast_df
+
 
 # === NOUVELLE FONCTION DE PRÉVISION RSI ===
 def afficher_prevision_market(data):
@@ -149,16 +168,15 @@ if signals:
 else:
     st.info("Aucun signal clair aujourd’hui.")
 
+forecast_rsi(sol_data)
+
 # === PRÉVISION RSI / TENDANCE COURT TERME ===
 afficher_prevision_market(sol_data)
 
 # === Graphiques ===
 st.subheader("📈 Prix SOL + prévision (7j)")
-future_dates, future_preds = forecast_price(sol_data)
-forecast_df = pd.concat([
-    sol_data[['Close']].rename(columns={"Close": "Prix réel"}),
-    pd.DataFrame({"Prix prédit": future_preds.flatten()}, index=future_dates)
-], axis=1)
+forecast_df = forecast_price(sol_data)
+st.subheader("📈 Prévision du prix de SOL (7 jours)")
 st.line_chart(forecast_df)
 
 st.subheader("📉 RSI sur 60 jours")
@@ -170,3 +188,24 @@ history_df["Date"] = pd.to_datetime(history_df["Date"])
 last_30_days = history_df[history_df["Date"] > (datetime.now() - pd.Timedelta(days=30))]
 st.dataframe(last_30_days.sort_values("Date", ascending=False), use_container_width=True)
 st.download_button("📥 Télécharger l'historique CSV", data=history_df.to_csv(index=False), file_name="signal_history.csv")
+
+def forecast_rsi(data, future_days=3):
+    data = data[['RSI']].dropna().tail(10).reset_index()
+    if len(data) < 5:
+        st.info("Pas assez de données pour prédire le RSI.")
+        return
+
+    X = np.arange(len(data)).reshape(-1, 1)
+    y = data['RSI'].values
+
+    model = make_pipeline(PolynomialFeatures(degree=2), LinearRegression())
+    model.fit(X, y)
+
+    future_X = np.arange(len(data), len(data) + future_days).reshape(-1, 1)
+    future_rsi = model.predict(future_X)
+
+    future_dates = pd.date_range(start=data['Date'].iloc[-1] + pd.Timedelta(days=1), periods=future_days)
+    future_rsi_df = pd.DataFrame({"RSI prédit": future_rsi}, index=future_dates)
+
+    st.subheader("📉 Prévision du RSI (3 jours)")
+    st.line_chart(future_rsi_df)
