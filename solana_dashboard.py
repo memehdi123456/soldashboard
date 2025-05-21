@@ -415,8 +415,6 @@ else:
 afficher_graphique_actions(history_df)
 
 def get_crypto_news():
-    import requests
-    import pandas as pd
 
     url = "https://newsdata.io/api/1/news"
     params = {
