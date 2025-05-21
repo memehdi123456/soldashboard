@@ -145,16 +145,21 @@ else:
     history_df = pd.DataFrame(columns=["Date", "Price", "RSI", "Change30d", "FearGreed", "Signals"])
 
 if today not in history_df["Date"].values:
+    strategy_signal, raisons = analyser_achat_vente(sol_data, fg_index)
+
     new_row = {
         "Date": today,
         "Price": last_price,
         "RSI": rsi_now,
         "Change30d": change_30d,
         "FearGreed": fg_index,
-        "Signals": "; ".join(signals)
+        "Signals": "; ".join(signals),
+        "Action": strategy_signal  # 🆕 colonne ajoutée
     }
+
     history_df = pd.concat([history_df, pd.DataFrame([new_row])], ignore_index=True)
     history_df.to_csv(history_file, index=False)
+
 
 # === Dashboard ===
 col1, col2, col3, col4 = st.columns(4)
