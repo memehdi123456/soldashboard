@@ -79,7 +79,7 @@ def forecast_price(data, future_days=7):
 
     future_dates = pd.date_range(start=data['Date'].iloc[-1] + pd.Timedelta(days=1), periods=future_days)
     future_ts = future_dates.astype(np.int64) // 10**9
-    future_ts = future_ts.reshape(-1, 1)
+    future_ts = np.array(future_ts).reshape(-1, 1)  # ✅ conversion explicite
 
     future_preds = model.predict(future_ts)
 
