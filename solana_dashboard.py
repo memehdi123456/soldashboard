@@ -5,6 +5,9 @@ import pandas as pd
 import os
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+
 import numpy as np
 
 st.set_page_config(page_title="Solana Market Signals", layout="wide")
