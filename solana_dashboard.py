@@ -167,7 +167,7 @@ if signals:
 else:
     st.info("Aucun signal clair aujourd’hui.")
 
-forecast_rsi(sol_data)
+
 
 # === PRÉVISION RSI / TENDANCE COURT TERME ===
 afficher_prevision_market(sol_data)
@@ -208,3 +208,4 @@ def forecast_rsi(data, future_days=3):
 
     st.subheader("📉 Prévision du RSI (3 jours)")
     st.line_chart(future_rsi_df)
+forecast_rsi(sol_data)
