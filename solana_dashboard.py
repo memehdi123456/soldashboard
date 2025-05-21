@@ -135,7 +135,7 @@ st.subheader("📈 Prix + Prévision (7j)")
 future_dates, future_preds = forecast_price(sol_data)
 forecast_df = pd.concat([
     sol_data[['Close']].rename(columns={"Close": "Prix réel"}),
-    pd.DataFrame({"Prix prédit": future_preds}, index=future_dates)
+    pd.DataFrame({"Prix prédit": future_preds.flatten()}, index=future_dates)
 ], axis=1)
 st.line_chart(forecast_df)
 
