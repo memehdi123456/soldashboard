@@ -1,5 +1,7 @@
 import streamlit as st
 import yfinance as yf
+import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 import requests
 import pandas as pd
 import os
@@ -9,6 +11,75 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 
 import numpy as np
+
+
+# Auto-refresh toutes les 10 secondes
+st_autorefresh(interval=10000, key="refresh_live")
+
+st.set_page_config(page_title="Solana Market Signals", layout="wide")
+st.title("📊 Solana Market Signals")
+st.image("solana_banner.png", use_container_width=True)
+
+@st.cache_data
+def get_fear_greed_index():
+    try:
+        response = requests.get("https://api.alternative.me/fng/?limit=1").json()
+        return int(response['data'][0]['value'])
+    except:
+        return None
+
+@st.cache_data
+def get_sol_data(days=60):
+    return yf.download("SOL-USD", period=f"{days}d", interval="1d")
+
+def calculate_rsi(data, period=14):
+    delta = data['Close'].diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window=period).mean()
+    avg_loss = loss.rolling(window=period).mean()
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    data['RSI'] = rsi
+    return data
+
+def detect_signals(data, fg_index):
+    signals = []
+    if len(data) < 30 or data['RSI'].isnull().all():
+        return ["⚠️ Données insuffisantes"], 0.0, 0.0, 0.0
+    try:
+        rsi = float(data['RSI'].iloc[-1])
+        price = float(data['Close'].iloc[-1])
+        price_30d = float(data['Close'].iloc[-30])
+        change = float(((price - price_30d) / price_30d) * 100)
+    except Exception as e:
+        return [f"⚠️ Erreur : {e}"], 0.0, 0.0, 0.0
+
+    if fg_index and fg_index < 30:
+        signals.append("⚠️ Fear Index < 30")
+    if fg_index and fg_index > 60:
+        signals.append("✅ Fear Index > 60")
+    if rsi < 40:
+        signals.append("⚠️ RSI < 40")
+    if rsi > 60:
+        signals.append("✅ RSI > 60")
+    if change < -15:
+        signals.append("⚠️ -15% en 30 jours")
+    if change > 20:
+        signals.append("✅ +20% en 30 jours")
+
+    return signals, round(change, 2), round(rsi, 2), round(price, 2)
+
+# === Prix live ===
+try:
+    live_price = round(yf.Ticker("SOL-USD").info["regularMarketPrice"], 2)
+except:
+    live_price = "N/A"
+
+col1, col2, col3 = st.columns(3)
+col1.metric("💰 Prix SOL (live)", f"${live_price}")
+col2.metric("🔁 Rafraîchissement", "Toutes les 10s")
+col3.metric("📈 Source", "Yahoo Finance")
 
 st.set_page_config(page_title="Solana Market Signals", layout="wide")
 st.title("📊 Solana Market Signals")
