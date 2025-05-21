@@ -336,4 +336,37 @@ else:
 
 afficher_graphique_actions(history_df)
 
+def get_crypto_news():
+    import requests
+    import pandas as pd
+
+    url = "https://newsdata.io/api/1/news"
+    params = {
+        "apikey": "pub_27878469b8d3e03000e09757fa0c367d42f4b",  # clé publique gratuite
+        "q": "Solana OR crypto",
+        "language": "en",
+        "category": "business",
+    }
+
+    try:
+        response = requests.get(url, params=params)
+        news_data = response.json()
+        articles = news_data.get("results", [])
+        df_news = pd.DataFrame([{
+            "title": article.get("title"),
+            "link": article.get("link"),
+            "pubDate": article.get("pubDate"),
+            "source": article.get("source_id")
+        } for article in articles])
+        return df_news.head(10)
+    except Exception as e:
+        return pd.DataFrame([{"title": f"Erreur récupération news : {e}", "link": "", "pubDate": "", "source": ""}])
+
+
+st.subheader("📰 Actualités crypto (Solana & marché)")
+
+news_df = get_crypto_news()
+for i, row in news_df.iterrows():
+    st.markdown(f"- [{row['title']}]({row['link']}) ({row['source']} - {row['pubDate'][:10]})")
+
 
