@@ -71,14 +71,20 @@ def detect_signals(data, fg_index):
 
 def forecast_price(data, future_days=7):
     data = data.dropna().reset_index()
-    data['Timestamp'] = data['Date'].astype(int) / 10**9
+    data['Timestamp'] = pd.to_datetime(data['Date']).astype(np.int64) // 10**9
+
     X = data['Timestamp'].values.reshape(-1, 1)
     y = data['Close'].values
     model = LinearRegression().fit(X, y)
-    future_dates = pd.date_range(start=data['Date'].iloc[-1], periods=future_days + 1)[1:]
-    future_ts = future_dates.astype(int) / 10**9
-    future_preds = model.predict(future_ts.reshape(-1, 1))
+
+    future_dates = pd.date_range(start=data['Date'].iloc[-1] + pd.Timedelta(days=1), periods=future_days)
+    future_ts = future_dates.astype(np.int64) // 10**9
+    future_ts = future_ts.reshape(-1, 1)
+
+    future_preds = model.predict(future_ts)
+
     return future_dates, future_preds
+
 
 # === Analyse ===
 fg_index = get_fear_greed_index()
