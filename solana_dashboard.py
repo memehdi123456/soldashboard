@@ -154,11 +154,12 @@ if today not in history_df["Date"].values:
         "Change30d": change_30d,
         "FearGreed": fg_index,
         "Signals": "; ".join(signals),
-        "Action": strategy_signal  # 🆕 colonne ajoutée
+        "Action": strategy_signal  # ✅ Cette ligne ajoute la colonne Action
     }
 
     history_df = pd.concat([history_df, pd.DataFrame([new_row])], ignore_index=True)
     history_df.to_csv(history_file, index=False)
+
 
 
 # === Dashboard ===
@@ -270,10 +271,37 @@ st.markdown(f"### {signal}")
 for r in raisons:
     st.write(r)
 
+
+import matplotlib.pyplot as plt
+
+def afficher_graphique_actions(history_df):
+    st.subheader("📊 Historique des recommandations (30 derniers jours)")
+
+    df = history_df.copy()
+    df["Date"] = pd.to_datetime(df["Date"])
+    df = df[df["Date"] > (datetime.now() - pd.Timedelta(days=30))]
+
+    if "Action" not in df.columns:
+        st.info("Aucune recommandation enregistrée pour le moment.")
+        return
+
+    # Simplifier le texte pour graphique
+    df['Signal'] = df['Action'].str.extract(r"(🟢|🔴|⚪)")
+    signal_map = {"🟢": "Achat", "🔴": "Vente", "⚪": "Attente"}
+    df['Signal'] = df['Signal'].map(signal_map)
+
+    count_df = df.groupby(['Date', 'Signal']).size().unstack(fill_value=0)
+
+    st.bar_chart(count_df)
+
+
 # === Historique des signaux ===
 st.subheader("📋 Historique des signaux (30 derniers jours)")
 history_df["Date"] = pd.to_datetime(history_df["Date"])
 last_30_days = history_df[history_df["Date"] > (datetime.now() - pd.Timedelta(days=30))]
 st.dataframe(last_30_days.sort_values("Date", ascending=False), use_container_width=True)
 st.download_button("📥 Télécharger l'historique CSV", data=history_df.to_csv(index=False), file_name="signal_history.csv")
+
+afficher_graphique_actions(history_df)
+
 
