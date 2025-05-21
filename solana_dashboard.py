@@ -144,6 +144,62 @@ if os.path.exists(history_file):
 else:
     history_df = pd.DataFrame(columns=["Date", "Price", "RSI", "Change30d", "FearGreed", "Signals"])
 
+
+def analyser_achat_vente(data, fg_index):
+    signal = "⚪ Attente / Neutre"
+    raisons = []
+
+    # Calcule EMA
+    data['EMA_9'] = data['Close'].ewm(span=9, adjust=False).mean()
+    data['EMA_21'] = data['Close'].ewm(span=21, adjust=False).mean()
+
+    rsi = float(data['RSI'].iloc[-1])
+    prix = float(data['Close'].iloc[-1])
+    ema9 = float(data['EMA_9'].iloc[-1])
+    ema21 = float(data['EMA_21'].iloc[-1])
+    prix_7j = float(data['Close'].iloc[-7])
+
+    variation_7j = ((prix - prix_7j) / prix_7j) * 100
+
+    # Conditions d'achat
+    conds_achat = 0
+    if 45 <= rsi <= 65:
+        conds_achat += 1
+        raisons.append("✅ RSI dans une bonne zone (45-65)")
+    if ema9 > ema21:
+        conds_achat += 1
+        raisons.append("✅ Croisement haussier EMA 9 > EMA 21")
+    if fg_index and fg_index > 50:
+        conds_achat += 1
+        raisons.append("✅ Sentiment marché positif (FG > 50)")
+    if prix > ema21:
+        conds_achat += 1
+        raisons.append("✅ Prix au-dessus EMA 21")
+
+    if conds_achat >= 3:
+        signal = "🟢 Achat conseillé"
+
+    # Conditions de vente
+    conds_vente = 0
+    if rsi > 75:
+        conds_vente += 1
+        raisons.append("🔻 RSI en surachat (> 75)")
+    if ema9 < ema21:
+        conds_vente += 1
+        raisons.append("🔻 Croisement baissier EMA 9 < EMA 21")
+    if fg_index and fg_index < 40:
+        conds_vente += 1
+        raisons.append("🔻 Peur sur le marché (FG < 40)")
+    if variation_7j < -10:
+        conds_vente += 1
+        raisons.append(f"🔻 Chute de {round(variation_7j,2)}% sur 7 jours")
+
+    if conds_vente >= 2:
+        signal = "🔴 Vente conseillée"
+
+    return signal, raisons
+    
+
 if today not in history_df["Date"].values:
     strategy_signal, raisons = analyser_achat_vente(sol_data, fg_index)
 
@@ -238,59 +294,6 @@ def forecast_rsi(data, future_days=3):
     st.line_chart(future_rsi_df)
 forecast_rsi(sol_data)
 
-def analyser_achat_vente(data, fg_index):
-    signal = "⚪ Attente / Neutre"
-    raisons = []
-
-    # Calcule EMA
-    data['EMA_9'] = data['Close'].ewm(span=9, adjust=False).mean()
-    data['EMA_21'] = data['Close'].ewm(span=21, adjust=False).mean()
-
-    rsi = float(data['RSI'].iloc[-1])
-    prix = float(data['Close'].iloc[-1])
-    ema9 = float(data['EMA_9'].iloc[-1])
-    ema21 = float(data['EMA_21'].iloc[-1])
-    prix_7j = float(data['Close'].iloc[-7])
-
-    variation_7j = ((prix - prix_7j) / prix_7j) * 100
-
-    # Conditions d'achat
-    conds_achat = 0
-    if 45 <= rsi <= 65:
-        conds_achat += 1
-        raisons.append("✅ RSI dans une bonne zone (45-65)")
-    if ema9 > ema21:
-        conds_achat += 1
-        raisons.append("✅ Croisement haussier EMA 9 > EMA 21")
-    if fg_index and fg_index > 50:
-        conds_achat += 1
-        raisons.append("✅ Sentiment marché positif (FG > 50)")
-    if prix > ema21:
-        conds_achat += 1
-        raisons.append("✅ Prix au-dessus EMA 21")
-
-    if conds_achat >= 3:
-        signal = "🟢 Achat conseillé"
-
-    # Conditions de vente
-    conds_vente = 0
-    if rsi > 75:
-        conds_vente += 1
-        raisons.append("🔻 RSI en surachat (> 75)")
-    if ema9 < ema21:
-        conds_vente += 1
-        raisons.append("🔻 Croisement baissier EMA 9 < EMA 21")
-    if fg_index and fg_index < 40:
-        conds_vente += 1
-        raisons.append("🔻 Peur sur le marché (FG < 40)")
-    if variation_7j < -10:
-        conds_vente += 1
-        raisons.append(f"🔻 Chute de {round(variation_7j,2)}% sur 7 jours")
-
-    if conds_vente >= 2:
-        signal = "🔴 Vente conseillée"
-
-    return signal, raisons
 st.subheader("💡 Stratégie actuelle (achat / vente)")
 signal, raisons = analyser_achat_vente(sol_data, fg_index)
 st.markdown(f"### {signal}")
