@@ -349,7 +349,7 @@ def get_crypto_news():
 
     url = "https://newsdata.io/api/1/news"
     params = {
-        "apikey": "pub_27878469b8d3e03000e09757fa0c367d42f4b",  # clé publique gratuite
+        "apikey": "pub_27878469b8d3e03000e09757fa0c367d42f4b",  # Clé publique gratuite (limitée)
         "q": "Solana OR crypto",
         "language": "en",
         "category": "business",
@@ -357,12 +357,17 @@ def get_crypto_news():
 
     try:
         response = requests.get(url, params=params, timeout=10)
-        if response.status_code != 200:
-            raise ValueError(f"Erreur API : {response.status_code}")
+        content_type = response.headers.get('Content-Type', '')
+
+        # Vérifie que la réponse est bien en JSON
+        if "application/json" not in content_type:
+            raise ValueError(f"Réponse non JSON : {content_type}")
+
         news_data = response.json()
+
         if not isinstance(news_data, dict) or "results" not in news_data:
-            raise ValueError("Réponse inattendue de l’API")
-        
+            raise ValueError("Structure inattendue dans la réponse API")
+
         articles = news_data.get("results", [])
         df_news = pd.DataFrame([{
             "title": article.get("title"),
@@ -370,9 +375,17 @@ def get_crypto_news():
             "pubDate": article.get("pubDate"),
             "source": article.get("source_id")
         } for article in articles])
+
         return df_news.head(10)
+
     except Exception as e:
-        return pd.DataFrame([{"title": f"Erreur récupération news : {e}", "link": "", "pubDate": "", "source": ""}])
+        return pd.DataFrame([{
+            "title": f"Erreur récupération news : {e}",
+            "link": "",
+            "pubDate": "",
+            "source": ""
+        }])
+
 # === Affichage des actualités crypto ===
 st.subheader("📰 Actualités crypto (Solana & marché)")
 
