@@ -39,11 +39,20 @@ def calculate_rsi(data, period=14):
 
 def detect_signals(data, fg_index):
     signals = []
-    rsi = float(data['RSI'].iloc[-1])
-    price = float(data['Close'].iloc[-1])
-    price_30d = float(data['Close'].iloc[-30])
-    change = float(((price - price_30d) / price_30d) * 100)
 
+    # Assure-toi que les lignes nécessaires existent
+    if len(data) < 30 or data['RSI'].isnull().all():
+        return ["⚠️ Données insuffisantes ou RSI manquant"], 0.0, 0.0, 0.0
+
+    try:
+        rsi = float(data['RSI'].iloc[-1])
+        price = float(data['Close'].iloc[-1])
+        price_30d = float(data['Close'].iloc[-30])
+        change = float(((price - price_30d) / price_30d) * 100)
+    except Exception as e:
+        return [f"⚠️ Erreur de calcul : {e}"], 0.0, 0.0, 0.0
+
+    # Analyse Bull/Bear
     if fg_index is not None and fg_index < 30:
         signals.append("⚠️ Fear Index < 30")
     if fg_index is not None and fg_index > 60:
@@ -58,6 +67,7 @@ def detect_signals(data, fg_index):
         signals.append("✅ +20% in 30 days")
 
     return signals, round(change, 2), round(rsi, 2), round(price, 2)
+
 
 def forecast_price(data, future_days=7):
     data = data.dropna().reset_index()
