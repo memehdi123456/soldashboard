@@ -153,7 +153,6 @@ if today not in history_df["Date"].values:
     history_df = pd.concat([history_df, pd.DataFrame([new_row])], ignore_index=True)
     history_df.to_csv(history_file, index=False)
 
-
 # === Dashboard ===
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Prix SOL", f"${last_price}")
