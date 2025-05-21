@@ -94,8 +94,7 @@ forecast_df = pd.DataFrame({
     "Max": upper_bound.flatten()
 }, index=future_dates)
 
-
-    return forecast_df
+return forecast_df
 
 
 # === NOUVELLE FONCTION DE PRÉVISION RSI ===
