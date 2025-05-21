@@ -1,7 +1,6 @@
 import streamlit as st
-import yfinance as yf
-import streamlit as st
 from streamlit_autorefresh import st_autorefresh
+import yfinance as yf
 import requests
 import pandas as pd
 import os
@@ -9,8 +8,8 @@ from datetime import datetime
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
-
 import numpy as np
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Solana Market Signals", layout="wide")
 st.title("📊 Solana Market Signals")
