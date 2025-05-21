@@ -9,8 +9,9 @@ import numpy as np
 
 st.set_page_config(page_title="Solana Market Signals", layout="wide")
 st.title("📊 Solana Market Signals")
-st.image("solana_banner.png", use_container_width=True)
 
+# ✅ Utilise une image locale à placer dans le même dossier que ce script
+st.image("solana_banner.png", use_container_width=True)
 
 # === Fonctions données ===
 @st.cache_data
@@ -38,14 +39,14 @@ def calculate_rsi(data, period=14):
 
 def detect_signals(data, fg_index):
     signals = []
-    rsi = data['RSI'].iloc[-1]
-    price = data['Close'].iloc[-1]
-    price_30d = data['Close'].iloc[-30]
-    change = ((price - price_30d) / price_30d) * 100
+    rsi = float(data['RSI'].iloc[-1])
+    price = float(data['Close'].iloc[-1])
+    price_30d = float(data['Close'].iloc[-30])
+    change = float(((price - price_30d) / price_30d) * 100)
 
-    if fg_index and fg_index < 30:
+    if fg_index is not None and fg_index < 30:
         signals.append("⚠️ Fear Index < 30")
-    if fg_index and fg_index > 60:
+    if fg_index is not None and fg_index > 60:
         signals.append("✅ Fear Index > 60")
     if rsi < 40:
         signals.append("⚠️ RSI < 40")
@@ -129,4 +130,4 @@ history_df["Date"] = pd.to_datetime(history_df["Date"])
 last_30_days = history_df[history_df["Date"] > (datetime.now() - pd.Timedelta(days=30))]
 st.dataframe(last_30_days.sort_values("Date", ascending=False), use_container_width=True)
 
-st.download_button("Télécharger l'historique CSV", data=history_df.to_csv(index=False), file_name="signal_history.csv")
+st.download_button("📥 Télécharger l'historique CSV", data=history_df.to_csv(index=False), file_name="signal_history.csv")
