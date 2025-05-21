@@ -356,8 +356,13 @@ def get_crypto_news():
     }
 
     try:
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code != 200:
+            raise ValueError(f"Erreur API : {response.status_code}")
         news_data = response.json()
+        if not isinstance(news_data, dict) or "results" not in news_data:
+            raise ValueError("Réponse inattendue de l’API")
+        
         articles = news_data.get("results", [])
         df_news = pd.DataFrame([{
             "title": article.get("title"),
@@ -368,12 +373,15 @@ def get_crypto_news():
         return df_news.head(10)
     except Exception as e:
         return pd.DataFrame([{"title": f"Erreur récupération news : {e}", "link": "", "pubDate": "", "source": ""}])
-
-
+# === Affichage des actualités crypto ===
 st.subheader("📰 Actualités crypto (Solana & marché)")
 
 news_df = get_crypto_news()
-for i, row in news_df.iterrows():
-    st.markdown(f"- [{row['title']}]({row['link']}) ({row['source']} - {row['pubDate'][:10]})")
+for _, row in news_df.iterrows():
+    if row["link"]:
+        st.markdown(f"- [{row['title']}]({row['link']}) ({row['source']} - {row['pubDate'][:10]})")
+    else:
+        st.warning(row["title"])
+
 
 
