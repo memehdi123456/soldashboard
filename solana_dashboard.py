@@ -88,11 +88,12 @@ def forecast_price(data, future_days=7):
     lower_bound = future_preds - std_error
     upper_bound = future_preds + std_error
 
-    forecast_df = pd.DataFrame({
-        "Prix prédit": future_preds,
-        "Min": lower_bound,
-        "Max": upper_bound
+ forecast_df = pd.DataFrame({
+    "Prix prédit": future_preds.flatten(),
+    "Min": lower_bound.flatten(),
+    "Max": upper_bound.flatten()
     }, index=future_dates)
+
 
     return forecast_df
 
