@@ -409,10 +409,12 @@ else:
 afficher_graphique_actions(history_df)
 
 def get_crypto_news():
+    import requests
+    import pandas as pd
 
     url = "https://newsdata.io/api/1/news"
     params = {
-        "apikey": "pub_27878469b8d3e03000e09757fa0c367d42f4b",  # clé publique
+        "apikey": "pub_27878469b8d3e03000e09757fa0c367d42f4b",  # Clé publique gratuite
         "q": "Solana OR crypto",
         "language": "en",
         "category": "business",
@@ -422,24 +424,26 @@ def get_crypto_news():
         response = requests.get(url, params=params, timeout=10)
 
         # Vérifie que la réponse est bien du JSON
-        if "application/json" not in response.headers.get("Content-Type", ""):
-            raise ValueError("La réponse de l'API n'est pas en JSON")
+        content_type = response.headers.get("Content-Type", "")
+        if "application/json" not in content_type:
+            raise ValueError(f"Réponse non JSON : {content_type}")
 
         news_data = response.json()
 
-        if not isinstance(news_data, dict):
-            raise ValueError("Réponse inattendue de l'API : pas un dictionnaire")
-
-        if "results" not in news_data:
-            raise ValueError(f"Aucune clé 'results' trouvée dans la réponse API : {news_data}")
+        # Vérifie que la réponse est bien un dict contenant 'results'
+        if not isinstance(news_data, dict) or "results" not in news_data:
+            raise ValueError(f"Structure inattendue : {news_data}")
 
         articles = news_data["results"]
+        if not isinstance(articles, list):
+            raise ValueError("Données 'results' non valides")
+
         df_news = pd.DataFrame([{
             "title": article.get("title", "Sans titre"),
             "link": article.get("link", ""),
             "pubDate": article.get("pubDate", ""),
             "source": article.get("source_id", "Inconnu")
-        } for article in articles])
+        } for article in articles if isinstance(article, dict)])
 
         return df_news.head(10)
 
@@ -450,6 +454,7 @@ def get_crypto_news():
             "pubDate": "",
             "source": ""
         }])
+
 
 # === Affichage des actualités crypto ===
 st.subheader("📰 Actualités crypto (Solana & marché)")
