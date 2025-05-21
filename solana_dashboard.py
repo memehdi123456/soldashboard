@@ -85,6 +85,8 @@ def forecast_price(data, future_days=7):
 
     return future_dates, future_preds
 
+    
+
 
 # === Analyse ===
 fg_index = get_fear_greed_index()
