@@ -182,9 +182,6 @@ else:
     st.warning("⚠️ La colonne 'Action' n'est pas encore présente dans le fichier CSV. Elle sera ajoutée après le prochain rafraîchissement.")
 
 
-ax.scatter(buy_signals["Date"], buy_signals["Price"], color="green", label="Achat", marker="^", s=100)
-ax.scatter(sell_signals["Date"], sell_signals["Price"], color="red", label="Vente", marker="v", s=100)
-
 ax.legend()
 ax.set_xlabel("Date")
 ax.set_ylabel("Prix en $")
