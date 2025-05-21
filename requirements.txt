@@ -3,3 +3,4 @@ yfinance
 requests
 scikit-learn
 pandas
+matplotlib
