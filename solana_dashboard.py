@@ -172,8 +172,15 @@ fig, ax = plt.subplots(figsize=(10, 4))
 ax.plot(df_plot["Date"], df_plot["Price"], label="Prix SOL", color='blue')
 
 # Points d'achat / vente
-buy_signals = df_plot[df_plot["Action"].str.contains("Achat", na=False)]
-sell_signals = df_plot[df_plot["Action"].str.contains("Vente", na=False)]
+if "Action" in df_plot.columns:
+    buy_signals = df_plot[df_plot["Action"].str.contains("Achat", na=False)]
+    sell_signals = df_plot[df_plot["Action"].str.contains("Vente", na=False)]
+    
+    ax.scatter(buy_signals["Date"], buy_signals["Price"], color="green", label="Achat", marker="^", s=100)
+    ax.scatter(sell_signals["Date"], sell_signals["Price"], color="red", label="Vente", marker="v", s=100)
+else:
+    st.warning("⚠️ La colonne 'Action' n'est pas encore présente dans le fichier CSV. Elle sera ajoutée après le prochain rafraîchissement.")
+
 
 ax.scatter(buy_signals["Date"], buy_signals["Price"], color="green", label="Achat", marker="^", s=100)
 ax.scatter(sell_signals["Date"], sell_signals["Price"], color="red", label="Vente", marker="v", s=100)
