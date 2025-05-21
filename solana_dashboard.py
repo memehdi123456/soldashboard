@@ -415,9 +415,12 @@ else:
 afficher_graphique_actions(history_df)
 
 def get_crypto_news():
+    import requests
+    import pandas as pd
+
     url = "https://newsdata.io/api/1/news"
     params = {
-        "apikey": "pub_27878469b8d3e03000e09757fa0c367d42f4b",  # Clé publique gratuite (limitée)
+        "apikey": "pub_27878469b8d3e03000e09757fa0c367d42f4b",  # clé publique
         "q": "Solana OR crypto",
         "language": "en",
         "category": "business",
@@ -425,23 +428,25 @@ def get_crypto_news():
 
     try:
         response = requests.get(url, params=params, timeout=10)
-        content_type = response.headers.get('Content-Type', '')
 
-        # Vérifie que la réponse est bien en JSON
-        if "application/json" not in content_type:
-            raise ValueError(f"Réponse non JSON : {content_type}")
+        # Vérifie que la réponse est bien du JSON
+        if "application/json" not in response.headers.get("Content-Type", ""):
+            raise ValueError("La réponse de l'API n'est pas en JSON")
 
         news_data = response.json()
 
-        if not isinstance(news_data, dict) or "results" not in news_data:
-            raise ValueError("Structure inattendue dans la réponse API")
+        if not isinstance(news_data, dict):
+            raise ValueError("Réponse inattendue de l'API : pas un dictionnaire")
 
-        articles = news_data.get("results", [])
+        if "results" not in news_data:
+            raise ValueError(f"Aucune clé 'results' trouvée dans la réponse API : {news_data}")
+
+        articles = news_data["results"]
         df_news = pd.DataFrame([{
-            "title": article.get("title"),
-            "link": article.get("link"),
-            "pubDate": article.get("pubDate"),
-            "source": article.get("source_id")
+            "title": article.get("title", "Sans titre"),
+            "link": article.get("link", ""),
+            "pubDate": article.get("pubDate", ""),
+            "source": article.get("source_id", "Inconnu")
         } for article in articles])
 
         return df_news.head(10)
