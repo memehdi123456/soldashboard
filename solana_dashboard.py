@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
 import numpy as np
-from ton_module_prevision import afficher_prevision_market  # ou colle directement la fonction
+
 
 st.set_page_config(page_title="Solana Market Signals", layout="wide")
 st.title("📊 Solana Market Signals")
@@ -151,5 +151,4 @@ st.dataframe(last_30_days.sort_values("Date", ascending=False), use_container_wi
 
 st.download_button("📥 Télécharger l'historique CSV", data=history_df.to_csv(index=False), file_name="signal_history.csv")
 
-# Après les signaux instantanés :
-afficher_prevision_market(sol_data)
+
