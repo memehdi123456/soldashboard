@@ -3,14 +3,9 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import ta
 
-print("✅ Fichier indicateurs.py bien chargé avec plt")
-
-
-
 def ajouter_indicateurs(data: pd.DataFrame) -> pd.DataFrame:
     data = data.copy().reset_index(drop=True)
 
-    # MACD
     try:
         macd_ind = ta.trend.MACD(close=data['Close'])
         data['MACD'] = pd.Series(macd_ind.macd().values, index=data.index)
@@ -18,7 +13,6 @@ def ajouter_indicateurs(data: pd.DataFrame) -> pd.DataFrame:
     except:
         data['MACD'] = data['MACD_signal'] = None
 
-    # Bollinger
     try:
         bb = ta.volatility.BollingerBands(close=data['Close'], window=20, window_dev=2)
         data['bb_high'] = pd.Series(bb.bollinger_hband().values, index=data.index)
@@ -27,7 +21,6 @@ def ajouter_indicateurs(data: pd.DataFrame) -> pd.DataFrame:
     except:
         data['bb_high'] = data['bb_low'] = data['bb_mavg'] = None
 
-    # Stochastic RSI
     try:
         stoch = ta.momentum.StochRSIIndicator(close=data['Close'])
         data['stoch_rsi_k'] = pd.Series(stoch.stochrsi_k().values, index=data.index)
@@ -40,7 +33,6 @@ def ajouter_indicateurs(data: pd.DataFrame) -> pd.DataFrame:
 def afficher_indicateurs(data: pd.DataFrame, st):
     st.subheader("📉 Indicateurs Techniques")
 
-    # === FIGURE 1 : Bollinger Bands ===
     fig1, ax1 = plt.subplots()
     valid_rows = data[['Date', 'bb_low', 'bb_high', 'Close']].dropna()
     dates = pd.to_datetime(valid_rows["Date"])
@@ -57,7 +49,6 @@ def afficher_indicateurs(data: pd.DataFrame, st):
     ax1.legend()
     st.pyplot(fig1)
 
-    # === FIGURE 2 : MACD ===
     fig2, ax2 = plt.subplots()
     macd_rows = data[['Date', 'MACD', 'MACD_signal']].dropna()
     ax2.plot(macd_rows['Date'], macd_rows['MACD'], label="MACD", color='purple')
@@ -66,7 +57,6 @@ def afficher_indicateurs(data: pd.DataFrame, st):
     ax2.legend()
     st.pyplot(fig2)
 
-    # === FIGURE 3 : Stochastic RSI ===
     fig3, ax3 = plt.subplots()
     rsi_rows = data[['Date', 'stoch_rsi_k', 'stoch_rsi_d']].dropna()
     ax3.plot(rsi_rows['Date'], rsi_rows['stoch_rsi_k'], label="%K", color='blue')
