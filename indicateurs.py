@@ -48,10 +48,18 @@ def afficher_indicateurs(data: pd.DataFrame, st):
     st.subheader("📉 Indicateurs Techniques")
 
     fig1, ax1 = plt.subplots()
-    ax1.plot(data['Date'], data['Close'], label="Prix", color='blue')
-    ax1.plot(data['Date'], data['bb_high'], label="Bollinger Haut", linestyle='--', color='orange')
-    ax1.plot(data['Date'], data['bb_low'], label="Bollinger Bas", linestyle='--', color='green')
-    ax1.fill_between(data['Date'], data['bb_low'], data['bb_high'], alpha=0.1)
+
+    valid_rows = data[['Date', 'bb_low', 'bb_high', 'Close']].dropna()
+
+    ax1.plot(valid_rows['Date'], valid_rows['Close'], label="Prix", color='blue')
+    ax1.plot(valid_rows['Date'], valid_rows['bb_high'], label="Bollinger Haut", linestyle='--', color='orange')
+    ax1.plot(valid_rows['Date'], valid_rows['bb_low'], label="Bollinger Bas", linestyle='--', color='green')
+    ax1.fill_between(valid_rows['Date'], valid_rows['bb_low'], valid_rows['bb_high'], alpha=0.1)
+
+    ax1.set_title("Bandes de Bollinger")
+    ax1.legend()
+    st.pyplot(fig1)
+
     ax1.set_title("Bandes de Bollinger")
     ax1.legend()
     st.pyplot(fig1)
