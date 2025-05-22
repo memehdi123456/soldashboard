@@ -10,12 +10,6 @@ import pandas as pd
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
 
-from indicateurs import ajouter_indicateurs, afficher_indicateurs
-from heatmap_volumes import afficher_heatmap_volumes
-from sentiment import afficher_sentiment
-from events import afficher_evenements
-from portefeuille import afficher_portefeuille
-
 st.set_page_config(page_title="Solana Dashboard", layout="wide")
 
 # Rafraîchissement automatique toutes les 10 secondes
