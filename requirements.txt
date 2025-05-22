@@ -1,0 +1,10 @@
+streamlit
+yfinance
+requests
+pandas
+scikit-learn
+matplotlib
+seaborn
+ta
+feedparser
+streamlit-autorefresh
