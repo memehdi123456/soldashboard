@@ -39,26 +39,28 @@ def ajouter_indicateurs(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def afficher_indicateurs(data: pd.DataFrame, st):
-    """
-    Affiche les indicateurs techniques dans des graphiques Streamlit.
-    """
-    import matplotlib.pyplot as plt
-
-    st.subheader("📉 Indicateurs Techniques")
+def afficher_indicateurs(data, st):
+    st.subheader("📊 Indicateurs techniques")
 
     fig1, ax1 = plt.subplots()
 
+    # Nettoyage : on garde seulement les lignes valides
     valid_rows = data[['Date', 'bb_low', 'bb_high', 'Close']].dropna()
 
-    ax1.plot(valid_rows['Date'], valid_rows['Close'], label="Prix", color='blue')
-    ax1.plot(valid_rows['Date'], valid_rows['bb_high'], label="Bollinger Haut", linestyle='--', color='orange')
-    ax1.plot(valid_rows['Date'], valid_rows['bb_low'], label="Bollinger Bas", linestyle='--', color='green')
-    ax1.fill_between(valid_rows['Date'], valid_rows['bb_low'], valid_rows['bb_high'], alpha=0.1)
+    # Conversion des dates pour matplotlib
+    dates = pd.to_datetime(valid_rows["Date"])
+    x_dates = mdates.date2num(dates)
 
-    ax1.set_title("Bandes de Bollinger")
-    ax1.legend()
-    st.pyplot(fig1)
+    ax1.plot(dates, valid_rows['Close'], label="Prix", color='blue')
+    ax1.plot(dates, valid_rows['bb_high'], label="Bollinger Haut", linestyle='--', color='orange')
+    ax1.plot(dates, valid_rows['bb_low'], label="Bollinger Bas", linestyle='--', color='green')
+
+    # fill_between avec dates converties
+    ax1.fill_between(x_dates, valid_rows['bb_low'], valid_rows['bb_high'], alpha=0.1)
+
+    # Format axe x
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    fig1.autofmt_xdate()
 
     ax1.set_title("Bandes de Bollinger")
     ax1.legend()
