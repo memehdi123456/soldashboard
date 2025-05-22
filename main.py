@@ -497,16 +497,37 @@ for e in events:
     st.markdown(f"- **{e['date']}** : {e['event']}")
 
 # ✅ 5. Portefeuille fictif
-st.subheader("💼 Portefeuille fictif")
+# Charger le portefeuille au démarrage
 if 'wallet' not in st.session_state:
-    st.session_state.wallet = {'sol_quantity': 5.0, 'entry_price': 100.0}  # 5 SOL achetés à 100$
+    st.session_state.wallet = charger_portefeuille()
 
-total_value = st.session_state.wallet['sol_quantity'] * last_price
-gain = total_value - (st.session_state.wallet['sol_quantity'] * st.session_state.wallet['entry_price'])
+# Calculs
+sol_qty = st.session_state.wallet['sol_quantity']
+entry_price = st.session_state.wallet['entry_price']
+total_value = sol_qty * last_price
+gain = total_value - (sol_qty * entry_price)
 
+# Affichage
 col1, col2 = st.columns(2)
-col1.metric("Valeur actuelle du portefeuille", f"${total_value:.2f}")
+col1.metric("Valeur portefeuille", f"${total_value:.2f}")
 col2.metric("Gains/Pertes", f"${gain:.2f}", delta_color="normal")
+
+# Achat manuel
+if st.button("Simuler achat 1 SOL"):
+    # Mettre à jour les données
+    sol_qty += 1
+    entry_price = (entry_price + last_price) / 2 if entry_price > 0 else last_price
+    st.session_state.wallet = {
+        "sol_quantity": sol_qty,
+        "entry_price": entry_price,
+        "history": st.session_state.wallet.get("history", []) + [{
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "qty": 1,
+            "price": last_price
+        }]
+    }
+    sauvegarder_portefeuille(st.session_state.wallet)
+    st.success("1 SOL ajouté au portefeuille fictif.")
 
 # Bouton d’achat manuel pour test (simulation)
 if st.button("Simuler Achat 1 SOL au prix actuel"):
