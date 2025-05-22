@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import ta
 
+print("✅ Fichier indicateurs.py bien chargé avec plt")
+
 
 
 def ajouter_indicateurs(data: pd.DataFrame) -> pd.DataFrame:
