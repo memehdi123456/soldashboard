@@ -420,6 +420,7 @@ def get_crypto_news():
 
     try:
         response = requests.get(url, params=params, timeout=10)
+        st.write("Réponse brute API :", response.text)
 
         # Vérifie que la réponse est bien du JSON
         content_type = response.headers.get("Content-Type", "")
