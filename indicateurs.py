@@ -1,5 +1,8 @@
 import pandas as pd
 import ta
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+
 
 def ajouter_indicateurs(data: pd.DataFrame) -> pd.DataFrame:
     """
