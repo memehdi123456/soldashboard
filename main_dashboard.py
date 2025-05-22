@@ -3,8 +3,6 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 
 from indicateurs import ajouter_indicateurs, afficher_indicateurs
 from heatmap_volumes import afficher_heatmap_volumes
