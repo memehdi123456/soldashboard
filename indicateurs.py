@@ -33,8 +33,10 @@ def ajouter_indicateurs(data: pd.DataFrame) -> pd.DataFrame:
 def afficher_indicateurs(data: pd.DataFrame, st):
     st.subheader("📉 Indicateurs Techniques")
 
+    # === Bandes de Bollinger ===
     fig1, ax1 = plt.subplots()
     valid_rows = data[['Date', 'bb_low', 'bb_high', 'Close']].dropna()
+    valid_rows = valid_rows.astype({'bb_low': 'float64', 'bb_high': 'float64', 'Close': 'float64'})
     dates = pd.to_datetime(valid_rows["Date"])
     x_dates = mdates.date2num(dates)
 
@@ -49,6 +51,7 @@ def afficher_indicateurs(data: pd.DataFrame, st):
     ax1.legend()
     st.pyplot(fig1)
 
+    # === MACD ===
     fig2, ax2 = plt.subplots()
     macd_rows = data[['Date', 'MACD', 'MACD_signal']].dropna()
     ax2.plot(macd_rows['Date'], macd_rows['MACD'], label="MACD", color='purple')
@@ -57,6 +60,7 @@ def afficher_indicateurs(data: pd.DataFrame, st):
     ax2.legend()
     st.pyplot(fig2)
 
+    # === RSI Stochastique ===
     fig3, ax3 = plt.subplots()
     rsi_rows = data[['Date', 'stoch_rsi_k', 'stoch_rsi_d']].dropna()
     ax3.plot(rsi_rows['Date'], rsi_rows['stoch_rsi_k'], label="%K", color='blue')
