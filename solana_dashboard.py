@@ -408,51 +408,29 @@ else:
 
 afficher_graphique_actions(history_df)
 
+import feedparser
+import pandas as pd
+
 def get_crypto_news():
-
-    url = "https://newsdata.io/api/1/news"
-    params = {
-        "apikey": "pub_27878469b8d3e03000e09757fa0c367d42f4b",  # Clé publique gratuite
-        "q": "Solana OR crypto",
-        "language": "en",
-        "category": "business",
-    }
-
+    url = "https://cointelegraph.com/rss"
     try:
-        response = requests.get(url, params=params, timeout=10)
-        st.write("Réponse brute API :", response.text)
-
-        # Vérifie que la réponse est bien du JSON
-        content_type = response.headers.get("Content-Type", "")
-        if "application/json" not in content_type:
-            raise ValueError(f"Réponse non JSON : {content_type}")
-
-        news_data = response.json()
-
-        # Vérifie que la réponse est bien un dict contenant 'results'
-        if not isinstance(news_data, dict) or "results" not in news_data:
-            raise ValueError(f"Structure inattendue : {news_data}")
-
-        articles = news_data["results"]
-        if not isinstance(articles, list):
-            raise ValueError("Données 'results' non valides")
-
+        feed = feedparser.parse(url)
+        entries = feed.entries[:10]  # Prend les 10 dernières actus
         df_news = pd.DataFrame([{
-            "title": article.get("title", "Sans titre"),
-            "link": article.get("link", ""),
-            "pubDate": article.get("pubDate", ""),
-            "source": article.get("source_id", "Inconnu")
-        } for article in articles if isinstance(article, dict)])
-
-        return df_news.head(10)
-
+            "title": e.title,
+            "link": e.link,
+            "pubDate": e.published,
+            "source": "CoinTelegraph"
+        } for e in entries])
+        return df_news
     except Exception as e:
         return pd.DataFrame([{
-            "title": f"Erreur récupération news : {e}",
+            "title": f"Erreur récupération flux RSS : {e}",
             "link": "",
             "pubDate": "",
             "source": ""
         }])
+
 
 
 # === Affichage des actualités crypto ===
