@@ -1,9 +1,0 @@
-streamlit
-yfinance
-requests
-scikit-learn
-pandas
-matplotlib
-streamlit-autorefresh
-feedparser
-
