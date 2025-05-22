@@ -11,8 +11,9 @@ def ajouter_indicateurs(data: pd.DataFrame) -> pd.DataFrame:
 
     # MACD
     macd = ta.trend.MACD(close=data['Close'])
-    data['MACD'] = macd.macd()
-    data['MACD_signal'] = macd.macd_signal()
+    data['MACD'] = macd.macd().reset_index(drop=True)
+    data['MACD_signal'] = macd.macd_signal().reset_index(drop=True)
+
 
     # Bollinger Bands
     bollinger = ta.volatility.BollingerBands(close=data['Close'], window=20, window_dev=2)
