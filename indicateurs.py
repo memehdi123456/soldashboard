@@ -13,6 +13,7 @@ def ajouter_indicateurs(data: pd.DataFrame) -> pd.DataFrame:
     macd = ta.trend.MACD(close=data['Close'])
     data['MACD'] = macd.macd().reset_index(drop=True)
     data['MACD_signal'] = macd.macd_signal().reset_index(drop=True)
+    data['MACD'] = macd.macd().reset_index(drop=True).fillna(0)
 
 
     # Bollinger Bands
