@@ -318,11 +318,11 @@ col3.metric("Fear & Greed", fg_index)
 col4.metric("Variation 30j", f"{change_30d}%")
 
 st.subheader("🧠 Signaux détectés (aujourd’hui)")
-if signals:
-    for sig in signals:
-        st.success(sig) if "✅" in sig else st.warning(sig)
-else:
-    st.info("Aucun signal clair aujourd’hui.")
+    if signals:
+        for sig in signals:
+            st.success(sig) if "✅" in sig else st.warning(sig)
+    else:
+        st.info("Aucun signal clair aujourd’hui.")
 
 
 
